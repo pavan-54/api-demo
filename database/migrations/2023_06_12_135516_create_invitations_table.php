@@ -17,7 +17,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone_number');
             $table->string('alternate_email')->nullable();
-            $table->foreignId('organization_id')->nullable();
+            $table->string('organization_name')->nullable();
+            $table->string('organization_role')->nullable();
+            $table->date('valid_till')->nullable();
             $table->timestamps();
         });
     }
