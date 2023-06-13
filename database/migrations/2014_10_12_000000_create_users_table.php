@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('organization_name')->nullable();
             $table->string('organization_role')->nullable();
             $table->date('valid_till')->nullable();
-            $table->binary('profile_img')->nullable();
+            $table->string('profile_img')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
