@@ -21,6 +21,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/invite', [InvitationController::class, 'invite']);
 
     Route::post('/logout', [UserController::class, 'logout']);
+
+
+    Route::post('/edit', [UserController::class, 'edit']);
 });
 
 Route::post('/login', [UserController::class, 'login'])->name('login');

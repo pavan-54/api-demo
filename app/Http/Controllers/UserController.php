@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Invitation;
 use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Storage;
+
 class UserController extends Controller
 {
     //
@@ -17,31 +19,6 @@ class UserController extends Controller
             'password' => 'required'
         ]);
 
-        //check if user exists
-        // $user = User::where('email', $request->email)->first();
-        // if(!$user){
-        //     return response()->json([
-        //         'message' => 'User does not exist'
-        //     ], 401);
-        // }
-        // else{
-        //     $password = hash('sha256', $request->password);
-        //     if($user->password != $password){
-        //         return response()->json([
-        //             'message' => 'Invalid credentials'
-        //         ], 401);
-        //     }
-            
-        //     else{
-        //         $token = $user->createToken('admin')->plainTextToken;
-        //         return response()->json([
-        //             'token' => $token,
-        //             'message' => 'Login successful'
-        //         ]);
-        //     }
-        // }
-
-
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Invalid login details'
@@ -49,10 +26,13 @@ class UserController extends Controller
         }
         else{
             $user = auth()->user();
+            $user->tokens()->delete();
             $token = $user->createToken('admin')->plainTextToken;
             return response()->json([
                 'token' => $token,
-                'message' => 'Login successful'
+                'token-description' => 'Bearer token and use this token in Authorization header',
+                'message' => 'Login successful',
+                'user Details'=> User::find($user->id)
             ]);
         }
     } 
@@ -64,12 +44,6 @@ class UserController extends Controller
             'password' => 'required'
         ]);
 
-
-        // return response()->json([
-        //     'message' => $request->password
-        // ]);
-    
-        //$password = hash('sha256', $request->password);
         $password = $request->password;
 
 
@@ -95,12 +69,41 @@ class UserController extends Controller
         $user = $request->user();
         $user->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logout successful']);
+        return response()->json(
+            
+            [
+                'message' => 'Logout successful',
+            ]
+        );
     }
 
-    public function test_auth(Request $request){
-        return response()->json([
-            'message' => 'Authenticated',
-        ]);
+    public function edit(Request $request)
+    {
+        $user = $request->user();
+
+        if ($request->hasFile('profile_img')) {
+            $file = $request->file('profile_img');
+            $path = $file->store('profile_img', 'public');
+
+            // Update the user's profile picture URL in the database
+            $user->profile_img = url(Storage::url($path));
+
+            $user->update([$request->all(), 'profile_img' => $user->profile_img]);
+            
+        }
+        else{
+            $user->update($request->all());
+        }
+
+        //delete all tokens
+        $user->tokens()->delete();
+
+
+        return response()->json(
+            [
+                'message' => 'User updated successfully',
+                'authorization message' => 'all tokens have been revoked for security feautures'
+            ]
+        );
     }
 }
