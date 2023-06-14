@@ -118,6 +118,10 @@
                                 alert('An error occurred while submitting the form.');
                             }
                         },
+                        error: function(xhr, status, error) {
+                            alert('An error occurred while submitting the form.');
+                            console.error(error);
+                        }
                     });
                 }
             });
