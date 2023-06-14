@@ -16,3 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return 'server is running';
 });
+
+
+Route::get('/frontend', function () {
+    return view('frontend');
+});
